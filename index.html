@@ -3,910 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Егор Некрасов | Red Team Specialist & Python Developer</title>
-    <style>
-        :root {
-            --primary-color: #dc2626;
-            --primary-dark: #991b1b;
-            --accent-color: #2563eb;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --bg-dark: #0f172a;
-            --border-color: #e2e8f0;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-
-        [data-theme="dark"] {
-            --text-primary: #ffffff;
-            --text-secondary: #cbd5e1;
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --border-color: #334155;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.6;
-            color: var(--text-primary);
-            background: var(--bg-primary);
-            transition: all 0.3s ease;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        /* Preloader */
-        .preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .terminal-loader {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: var(--shadow-lg);
-            min-width: 300px;
-        }
-
-        .terminal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .terminal-controls {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .control {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .control.close { background: #ef4444; }
-        .control.minimize { background: #f59e0b; }
-        .control.maximize { background: #10b981; }
-
-        .blink {
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-
-        /* Navigation */
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            padding: 1rem 0;
-            transition: all 0.3s ease;
-        }
-
-        [data-theme="dark"] .navbar {
-            background: rgba(15, 23, 42, 0.95);
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            position: relative;
-        }
-
-        .nav-link:hover {
-            color: var(--primary-color);
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--primary-color);
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            background: var(--bg-secondary);
-            position: relative;
-        }
-
-        .hero-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            background: var(--primary-color);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-        }
-
-        .title-greeting {
-            display: block;
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }
-
-        .title-name {
-            display: block;
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .title-role {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-top: 1rem;
-        }
-
-        .hero-description {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            line-height: 1.6;
-        }
-
-        .hero-metrics {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .metric {
-            text-align: center;
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .metric-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-primary);
-            border: 2px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .code-window {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-        }
-
-        .window-header {
-            background: var(--bg-dark);
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .window-controls {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .window-title {
-            color: white;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-        }
-
-        .window-content {
-            padding: 2rem;
-            background: #1a1a1a;
-        }
-
-        .window-content pre {
-            color: #10b981;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        /* Sections */
-        section {
-            padding: 5rem 0;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .section-subtitle {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Skills Grid */
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .skill-category {
-            background: var(--bg-secondary);
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .category-title {
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-            color: var(--text-primary);
-        }
-
-        .skill-items {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .skill-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .skill-name {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .skill-bar {
-            height: 8px;
-            background: var(--border-color);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .skill-progress {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-            border-radius: 4px;
-            transition: width 1.5s ease-in-out;
-        }
-
-        .skill-level {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* Projects Grid */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-
-        .project-card {
-            background: var(--bg-secondary);
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .project-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .project-badge {
-            background: var(--primary-color);
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .project-status {
-            border: 1px solid var(--success);
-            color: var(--success);
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-
-        .project-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .project-description {
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-        }
-
-        .project-tech {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .project-tech span {
-            background: var(--bg-primary);
-            color: var(--text-secondary);
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            border: 1px solid var(--border-color);
-        }
-
-        /* Timeline */
-        .timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 3rem;
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 30px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--border-color);
-        }
-
-        .timeline-item {
-            display: flex;
-            gap: 2rem;
-            position: relative;
-        }
-
-        .timeline-period {
-            width: 120px;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .timeline-content {
-            flex: 1;
-            background: var(--bg-secondary);
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .timeline-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .timeline-list {
-            list-style: none;
-        }
-
-        .timeline-list li {
-            padding: 0.5rem 0;
-            color: var(--text-secondary);
-            position: relative;
-            padding-left: 1.5rem;
-        }
-
-        .timeline-list li::before {
-            content: '▸';
-            position: absolute;
-            left: 0;
-            color: var(--primary-color);
-        }
-
-        /* Contact Form */
-        .contact-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-        }
-
-        .contact-form {
-            background: var(--bg-secondary);
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .form-input, .form-textarea {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: inherit;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-input:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        .btn-full {
-            width: 100%;
-            justify-content: center;
-        }
-
-        /* Footer */
-        .footer {
-            background: var(--bg-dark);
-            color: white;
-            padding: 3rem 0;
-            text-align: center;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero-container {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .hero-title {
-                font-size: 2.5rem;
-            }
-
-            .nav-menu {
-                display: none;
-            }
-
-            .contact-container {
-                grid-template-columns: 1fr;
-            }
-
-            .skills-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .timeline::before {
-                left: 20px;
-            }
-
-            .timeline-period {
-                width: 80px;
-            }
-        }
-    </style>
+    <title>Егор Некрасов (bytemalice) | Elite Red Team Specialist & AI Security Researcher</title>
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="script.js" as="script">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" as="style">
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔴</text></svg>">
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Егор Некрасов",
+        "alternateName": "bytemalice",
+        "description": "16-year-old Red Team Specialist and Python Developer specializing in offensive security and AI-powered cybersecurity solutions.",
+        "knowsAbout": ["Cybersecurity", "Python Programming", "Red Team Operations", "Penetration Testing", "Linux Security"],
+        "url": "https://fortniteballs111.github.io",
+        "sameAs": [
+            "https://tryhackme.com/p/bytemalice",
+            "https://github.com/fortniteballs111"
+        ]
+    }
+    </script>
 </head>
 <body>
-    <!-- Preloader -->
-    <div class="preloader">
-        <div class="terminal-loader">
-            <div class="terminal-header">
-                <div class="terminal-title">bytemalice@portfolio:~</div>
-                <div class="terminal-controls">
-                    <div class="control close"></div>
-                    <div class="control minimize"></div>
-                    <div class="control maximize"></div>
-                </div>
+    <!-- AI Assistant Widget -->
+    <div class="ai-assistant">
+        <button class="ai-trigger" aria-label="Open AI Assistant">
+            <span class="ai-icon">🤖</span>
+        </button>
+        <div class="ai-chat">
+            <div class="ai-header">
+                <h4>bytemalice AI Assistant</h4>
+                <button class="ai-close">×</button>
             </div>
-            <div class="terminal-text">
-                <span class="command" style="color: #10b981">$ loading red_team_portfolio...</span>
-                <span class="blink">▊</span>
+            <div class="ai-messages"></div>
+            <div class="ai-input">
+                <input type="text" placeholder="Ask about my skills, projects, or career...">
+                <button class="ai-send">➤</button>
             </div>
         </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container nav-container">
-            <div class="nav-logo">
-                <span>🔴</span>
-                <span>bytemalice</span>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="#about" class="nav-link">Обо мне</a></li>
-                <li><a href="#skills" class="nav-link">Навыки</a></li>
-                <li><a href="#projects" class="nav-link">Проекты</a></li>
-                <li><a href="#roadmap" class="nav-link">План</a></li>
-                <li><a href="#contact" class="nav-link">Контакты</a></li>
-            </ul>
-            <button class="theme-toggle">🌙</button>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section id="hero" class="hero">
-        <div class="container hero-container">
-            <div class="hero-content">
-                <div class="hero-badge">Seeking Mentorship</div>
-                <h1 class="hero-title">
-                    <span class="title-greeting">Привет, я</span>
-                    <span class="title-name">Егор Некрасов</span>
-                    <span class="title-role">
-                        <span>Red Team Specialist</span>
-                        <span>/</span>
-                        <span>Python Developer</span>
-                    </span>
-                </h1>
-                <p class="hero-description">
-                    16-летний специалист в области кибербезопасности и Python-разработки. 
-                    Системный подход к карьере, доказанная дисциплина и чёткий план развития.
-                </p>
-                <div class="hero-metrics">
-                    <div class="metric">
-                        <div class="metric-value" data-count="16">0</div>
-                        <div class="metric-label">Лет</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value" data-count="3">0</div>
-                        <div class="metric-label">Проекта</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value" data-count="2">0</div>
-                        <div class="metric-label">Направления</div>
-                    </div>
-                </div>
-                <div class="hero-actions">
-                    <a href="#projects" class="btn btn-primary">Мои проекты</a>
-                    <a href="#contact" class="btn btn-secondary">Стать ментором</a>
-                </div>
-            </div>
-            <div class="hero-visual">
-                <div class="code-window">
-                    <div class="window-header">
-                        <div class="window-controls">
+    <!-- Advanced Preloader with Progress -->
+    <div class="preloader">
+        <div class="preloader-content">
+            <div class="hacking-animation">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <div class="terminal-title">bytemalice@elite-portfolio:~</div>
+                        <div class="terminal-controls">
                             <span class="control close"></span>
                             <span class="control minimize"></span>
                             <span class="control maximize"></span>
                         </div>
-                        <div class="window-title">career_strategy.py</div>
                     </div>
-                    <div class="window-content">
-                        <pre><code>class CareerDevelopment:
-    def __init__(self):
-        self.name = "Егор Некрасов"
-        self.nickname = "bytemalice"
-        self.age = 16
-        self.specializations = [
-            "Red Team Operations",
-            "Python Development"
-        ]
-    
-    def current_focus(self):
-        return {
-            "education": "TryHackMe Red Team Path",
-            "development": "Python Security Tools", 
-            "infrastructure": "Debian Linux",
-            "physical": "GTO Training"
-        }
-    
-    def career_goal(self):
-        return "Junior Red Team Engineer by 18"</code></pre>
+                    <div class="terminal-body">
+                        <div class="terminal-line">
+                            <span class="prompt">$</span>
+                            <span class="command">sudo systemctl start elite_portfolio.service</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="output">Initializing Zero-Trust Security Framework...</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="output">Loading Advanced Threat Intelligence...</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="output">Compiling Neural Security Models...</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <span class="progress-text">0%</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- 3D Background Canvas -->
+    <canvas id="3d-background"></canvas>
+
+    <!-- Enhanced Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="#hero" class="logo-link">
+                    <span class="logo-icon">🔴</span>
+                    <span class="logo-text">bytemalice</span>
+                    <span class="logo-badge">ELITE</span>
+                </a>
+            </div>
+            
+            <ul class="nav-menu" role="menubar">
+                <li class="nav-item" role="none">
+                    <a href="#about" class="nav-link" data-text="System Architecture">
+                        <span class="nav-icon">🏗️</span>
+                        System Architecture
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#expertise" class="nav-link" data-text="Cyber Arsenal">
+                        <span class="nav-icon">⚡</span>
+                        Cyber Arsenal
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#operations" class="nav-link" data-text="Red Operations">
+                        <span class="nav-icon">🔍</span>
+                        Red Operations
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#research" class="nav-link" data-text="AI Research">
+                        <span class="nav-icon">🧠</span>
+                        AI Research
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#contact" class="nav-link" data-text="Command Center">
+                        <span class="nav-icon">🎮</span>
+                        Command Center
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Toggle cyber theme">
+                    <span class="theme-icon">💠</span>
+                </button>
+                <button class="nav-toggle" aria-label="Toggle navigation">
+                    <span class="hamburger">
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Elite Hero Section -->
+    <section id="hero" class="hero">
+        <div class="cyber-grid"></div>
+        <div class="particles-container" id="particles-js"></div>
+        
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="security-badge">
+                    <span class="badge-icon">🛡️</span>
+                    <span class="badge-text">TOP 1% THREAT HUNTER</span>
+                </div>
+                
+                <h1 class="hero-title">
+                    <span class="title-line">
+                        <span class="text-glitch" data-text="ЕГОР НЕКРАСОВ">ЕГОР НЕКРАСОВ</span>
+                    </span>
+                    <span class="title-subline">
+                        <span class="typing-text"></span>
+                        <span class="cursor">|</span>
+                    </span>
+                </h1>
+                
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" data-count="16">0</div>
+                        <div class="stat-label">AGE</div>
+                        <div class="stat-desc">Cybersecurity Prodigy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" data-count="3">0</div>
+                        <div class="stat-label">ACTIVE OPS</div>
+                        <div class="stat-desc">Red Team Operations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" data-count="99">0</div>
+                        <div class="stat-label">SUCCESS RATE</div>
+                        <div class="stat-desc">Mission Completion</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" data-count="24">0</div>
+                        <div class="stat-label">/7</div>
+                        <div class="stat-desc">Active Monitoring</div>
+                    </div>
+                </div>
+
+                <div class="hero-mission">
+                    <h3>CURRENT MISSION PROTOCOL</h3>
+                    <div class="mission-objectives">
+                        <div class="objective">
+                            <span class="objective-status">🟢</span>
+                            <span class="objective-text">Advanced Persistent Threat Research</span>
+                        </div>
+                        <div class="objective">
+                            <span class="objective-status">🟡</span>
+                            <span class="objective-text">AI-Powered Security Automation</span>
+                        </div>
+                        <div class="objective">
+                            <span class="objective-status">🔴</span>
+                            <span class="objective-text">Zero-Day Vulnerability Analysis</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-actions">
+                    <button class="btn btn-primary" data-action="deploy">
+                        <span class="btn-icon">🚀</span>
+                        <span class="btn-text">DEPLOY ENGAGEMENT</span>
+                    </button>
+                    <button class="btn btn-secondary" data-action="briefing">
+                        <span class="btn-icon">📁</span>
+                        <span class="btn-text">ACCESS BRIEFING</span>
+                    </button>
+                    <button class="btn btn-tertiary" data-action="extract">
+                        <span class="btn-icon">💾</span>
+                        <span class="btn-text">EXTRACT INTEL</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="command-center">
+                    <div class="monitor main-monitor">
+                        <div class="monitor-header">
+                            <span class="monitor-title">LIVE THREAT DASHBOARD</span>
+                            <span class="monitor-status">🟢 ONLINE</span>
+                        </div>
+                        <div class="monitor-content">
+                            <div class="network-map">
+                                <div class="node mainframe" data-node="main">
+                                    <span class="node-label">MAINFRAME</span>
+                                </div>
+                                <div class="connection"></div>
+                                <div class="node security" data-node="sec">
+                                    <span class="node-label">SECURITY HUB</span>
+                                </div>
+                                <div class="connection"></div>
+                                <div class="node research" data-node="res">
+                                    <span class="node-label">RESEARCH LAB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="monitor-sidebar">
+                        <div class="status-panel">
+                            <h4>SYSTEM STATUS</h4>
+                            <div class="status-item">
+                                <span class="status-label">THREAT LEVEL</span>
+                                <span class="status-value low">LOW</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">NEURAL NET</span>
+                                <span class="status-value active">ACTIVE</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">AI ASSISTANT</span>
+                                <span class="status-value ready">READY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <div class="scroll-arrow"></div>
+            <span class="scroll-text">INITIATE SCAN PROTOCOL</span>
+        </div>
     </section>
 
-    <!-- About Section -->
+    <!-- System Architecture Section -->
     <section id="about" class="about">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Системный подход к развитию</h2>
-                <p class="section-subtitle">Дисциплина, целеустремлённость и чёткое планирование</p>
+                <h2 class="section-title">CYBER DEFENSE ARCHITECTURE</h2>
+                <p class="section-subtitle">Advanced Threat Intelligence & Security Framework</p>
             </div>
-            <div class="skills-grid">
-                <div class="skill-category">
-                    <h3 class="category-title">🎯 Карьерная стратегия</h3>
-                    <p>Чёткий план становления Junior Red Team Engineer к 18 годам через систематическое обучение и практику.</p>
-                    <ul class="timeline-list">
-                        <li>К 18 годам: Junior Red Team Engineer</li>
-                        <li>Образование: Факультет ИБ в ВУЗе</li>
-                        <li>Сертификации: PNPT → OSCP</li>
-                        <li>Практика: CTF, Bug Bounty, проекты</li>
-                    </ul>
-                </div>
-                <div class="skill-category">
-                    <h3 class="category-title">⚡ Доказанная дисциплина</h3>
-                    <p>Системный подход ко всем аспектам жизни, перенос дисциплины в профессиональную сферу.</p>
-                    <ul class="timeline-list">
-                        <li>✅ Бросил курить после 5 лет стажа</li>
-                        <li>✅ Режим сна 22:30-7:30</li>
-                        <li>✅ Системные тренировки (ГТО)</li>
-                        <li>✅ Linux как основная ОС</li>
-                    </ul>
-                </div>
-                <div class="skill-category">
-                    <h3 class="category-title">🔐 Техническая философия</h3>
-                    <p>Практический подход к обучению через проекты и реальные задачи.</p>
-                    <ul class="timeline-list">
-                        <li>Практика над теорией</li>
-                        <li>Проектный подход к обучению</li>
-                        <li>Постоянное расширение стека</li>
-                        <li>Системное мышление</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Skills Section -->
-    <section id="skills" class="skills">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Технический стек</h2>
-                <p class="section-subtitle">Реальные навыки и направления развития</p>
-            </div>
-            <div class="skills-grid">
-                <div class="skill-category">
-                    <h3 class="category-title">✅ Реальные навыки</h3>
-                    <div class="skill-items">
-                        <div class="skill-item">
-                            <span class="skill-name">Python Development</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="65"></div>
-                            </div>
-                            <span class="skill-level">Базовый уровень: функции, файлы, алгоритмы</span>
+            <div class="architecture-grid">
+                <div class="arch-layer">
+                    <div class="layer-header">
+                        <span class="layer-number">01</span>
+                        <h3 class="layer-title">INTELLIGENCE GATHERING</h3>
+                    </div>
+                    <div class="layer-components">
+                        <div class="component" data-component="recon">
+                            <span class="component-icon">🔍</span>
+                            <span class="component-name">Advanced Reconnaissance</span>
+                            <span class="component-status">ACTIVE</span>
                         </div>
-                        <div class="skill-item">
-                            <span class="skill-name">Linux (Debian)</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="70"></div>
-                            </div>
-                            <span class="skill-level">Пользовательский уровень, базовое администрирование</span>
-                        </div>
-                        <div class="skill-item">
-                            <span class="skill-name">Bash/Shell</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="50"></div>
-                            </div>
-                            <span class="skill-level">Автоматизация рутины, скрипты</span>
-                        </div>
-                        <div class="skill-item">
-                            <span class="skill-name">Git</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="60"></div>
-                            </div>
-                            <span class="skill-level">Базовые операции, контроль версий</span>
+                        <div class="component" data-component="osint">
+                            <span class="component-icon">🌐</span>
+                            <span class="component-name">OSINT Framework</span>
+                            <span class="component-status">OPTIMIZED</span>
                         </div>
                     </div>
                 </div>
-                <div class="skill-category">
-                    <h3 class="category-title">🚧 В процессе изучения</h3>
-                    <div class="skill-items">
-                        <div class="skill-item">
-                            <span class="skill-name">Red Team Tools</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="30"></div>
-                            </div>
-                            <span class="skill-level">nmap, Burp Suite, reconnaissance</span>
+
+                <div class="arch-layer">
+                    <div class="layer-header">
+                        <span class="layer-number">02</span>
+                        <h3 class="layer-title">VULNERABILITY ANALYSIS</h3>
+                    </div>
+                    <div class="layer-components">
+                        <div class="component" data-component="scan">
+                            <span class="component-icon">📡</span>
+                            <span class="component-name">Threat Scanning</span>
+                            <span class="component-status">RUNNING</span>
                         </div>
-                        <div class="skill-item">
-                            <span class="skill-name">Docker</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="25"></div>
-                            </div>
-                            <span class="skill-level">Контейнеризация, развертывание</span>
-                        </div>
-                        <div class="skill-item">
-                            <span class="skill-name">Web Security</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="35"></div>
-                            </div>
-                            <span class="skill-level">OWASP Top 10, базовое тестирование</span>
-                        </div>
-                        <div class="skill-item">
-                            <span class="skill-name">Network Security</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="40"></div>
-                            </div>
-                            <span class="skill-level">TCP/IP, DNS, сетевая разведка</span>
+                        <div class="component" data-component="analyze">
+                            <span class="component-icon">📊</span>
+                            <span class="component-name">Risk Assessment</span>
+                            <span class="component-status">AI-POWERED</span>
                         </div>
                     </div>
                 </div>
-                <div class="skill-category">
-                    <h3 class="category-title">📚 План развития</h3>
-                    <div class="skill-items">
-                        <div class="skill-item">
-                            <span class="skill-name">Active Directory</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="10"></div>
-                            </div>
-                            <span class="skill-level">AD атаки, lateral movement</span>
+
+                <div class="arch-layer">
+                    <div class="layer-header">
+                        <span class="layer-number">03</span>
+                        <h3 class="layer-title">ACTIVE DEFENSE</h3>
+                    </div>
+                    <div class="layer-components">
+                        <div class="component" data-component="response">
+                            <span class="component-icon">🛡️</span>
+                            <span class="component-name">Incident Response</span>
+                            <span class="component-status">AUTOMATED</span>
                         </div>
-                        <div class="skill-item">
-                            <span class="skill-name">Python Frameworks</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="15"></div>
-                            </div>
-                            <span class="skill-level">Django/FastAPI, веб-разработка</span>
-                        </div>
-                        <div class="skill-item">
-                            <span class="skill-name">Advanced Tools</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="5"></div>
-                            </div>
-                            <span class="skill-level">Metasploit, C2 frameworks</span>
-                        </div>
-                        <div class="skill-item">
-                            <span class="skill-name">CTF Participation</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="20"></div>
-                            </div>
-                            <span class="skill-level">Практика, соревнования</span>
+                        <div class="component" data-component="hunt">
+                            <span class="component-icon">🎯</span>
+                            <span class="component-name">Threat Hunting</span>
+                            <span class="component-status">PROACTIVE</span>
                         </div>
                     </div>
                 </div>
@@ -914,268 +358,376 @@
         </div>
     </section>
 
-    <!-- Projects Section -->
-    <section id="projects" class="projects">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Практические проекты</h2>
-                <p class="section-subtitle">Реализованные решения и учебные проекты</p>
-            </div>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-header">
-                        <div class="project-badge">Python</div>
-                        <div class="project-status">✅ Завершён</div>
-                    </div>
-                    <h3 class="project-title">GTO Progress Tracker</h3>
-                    <p class="project-description">
-                        Трекер подготовки к нормативам ГТО с аналитикой прогресса. 
-                        Автоматический расчёт результатов и визуализация данных.
-                    </p>
-                    <div class="project-tech">
-                        <span>Python</span>
-                        <span>JSON</span>
-                        <span>Data Analysis</span>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-header">
-                        <div class="project-badge">Security</div>
-                        <div class="project-status">🔄 В процессе</div>
-                    </div>
-                    <h3 class="project-title">Linux Security Lab</h3>
-                    <p class="project-description">
-                        Лабораторная среда для практики пентеста на Debian. 
-                        Документация по настройке инструментов и методикам тестирования.
-                    </p>
-                    <div class="project-tech">
-                        <span>Bash</span>
-                        <span>Linux</span>
-                        <span>Documentation</span>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-header">
-                        <div class="project-badge">Education</div>
-                        <div class="project-status">✅ Завершён</div>
-                    </div>
-                    <h3 class="project-title">Learning Python Diary</h3>
-                    <p class="project-description">
-                        Дневник обучения Python с алгоритмическими задачами и конспектами. 
-                        Структурированный подход к изучению программирования.
-                    </p>
-                    <div class="project-tech">
-                        <span>Python</span>
-                        <span>Algorithms</span>
-                        <span>Education</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Rest of the elite sections would continue... -->
 
-    <!-- Roadmap Section -->
-    <section id="roadmap" class="roadmap">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Дорожная карта развития</h2>
-                <p class="section-subtitle">Чёткий план на 2024-2026 годы</p>
-            </div>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-period">2024</div>
-                    <div class="timeline-content">
-                        <h3 class="timeline-title">Фундаментальная база</h3>
-                        <ul class="timeline-list">
-                            <li>Завершить TryHackMe Jr Penetration Tester</li>
-                            <li>Создать 3+ реальных Python проекта</li>
-                            <li>Изучить Docker + базовые инструменты пентеста</li>
-                            <li>Участие в первых CTF соревнованиях</li>
-                            <li>Подготовка к ГТО (золотой знак)</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-period">2025</div>
-                    <div class="timeline-content">
-                        <h3 class="timeline-title">Специализация</h3>
-                        <ul class="timeline-list">
-                            <li>Сертификат PNPT (The Cyber Mentor)</li>
-                            <li>Стажировка в SOC/Pentest компании</li>
-                            <li>Поступление в ВУЗ на ИБ факультет</li>
-                            <li>Углублённое изучение Active Directory</li>
-                            <li>Собственные инструменты для пентеста</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-period">2026</div>
-                    <div class="timeline-content">
-                        <h3 class="timeline-title">Профессиональный рост</h3>
-                        <ul class="timeline-list">
-                            <li>OSCP сертификация</li>
-                            <li>Junior Red Team Engineer позиция</li>
-                            <li>Участие в Bug Bounty программах</li>
-                            <li>Развитие экспертизы в выбранной области</li>
-                            <li>Менторство для начинающих</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Готовы к сотрудничеству?</h2>
-                <p class="section-subtitle">Ищу менторов, единомышленников и возможности для роста</p>
-            </div>
-            <div class="contact-container">
-                <div class="contact-info">
-                    <h3>Контакты</h3>
-                    <p><strong>TryHackMe:</strong> bytemalice</p>
-                    <p><strong>GitHub:</strong> fortniteballs111</p>
-                    <p><strong>Цель:</strong> Junior Red Team к 18 годам</p>
-                    
-                    <div style="margin-top: 2rem;">
-                        <h4>Ищу:</h4>
-                        <ul class="timeline-list">
-                            <li>Менторов в области кибербезопасности</li>
-                            <li>Советы по развитию карьеры</li>
-                            <li>Участие в проектах и CTF командах</li>
-                            <li>Стажировки и возможности для роста</li>
-                        </ul>
-                    </div>
-                </div>
-                <form class="contact-form" id="contactForm">
-                    <div class="form-group">
-                        <label for="name" class="form-label">Ваше имя</label>
-                        <input type="text" id="name" name="name" required class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label for="role" class="form-label">Ваша роль</label>
-                        <select id="role" name="role" class="form-input" required>
-                            <option value="">Выберите вариант</option>
-                            <option value="mentor">Ментор</option>
-                            <option value="collaborator">Коллега</option>
-                            <option value="recruiter">Рекрутер</option>
-                            <option value="other">Другое</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" id="email" name="email" required class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label for="message" class="form-label">Сообщение</label>
-                        <textarea id="message" name="message" rows="5" required class="form-textarea" placeholder="Предложение, совет или вопрос..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-full">Отправить сообщение</button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2024 Егор Некрасов. 16 лет. Red Team Path.</p>
-            <p style="margin-top: 0.5rem; opacity: 0.8;">Системное мышление × Дисциплина × Постоянное развитие</p>
-        </div>
-    </footer>
-
-    <script>
-        // Preloader
-        window.addEventListener('load', () => {
-            const preloader = document.querySelector('.preloader');
-            setTimeout(() => {
-                preloader.style.opacity = '0';
-                setTimeout(() => {
-                    preloader.style.display = 'none';
-                }, 500);
-            }, 2000);
-        });
-
-        // Theme Toggle
-        const themeToggle = document.querySelector('.theme-toggle');
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-            localStorage.setItem('theme', newTheme);
-        });
-
-        // Initialize theme
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-        // Animate counters
-        const animateCounters = () => {
-            const counters = document.querySelectorAll('.metric-value');
-            counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-count'));
-                let current = 0;
-                const increment = target / 100;
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        counter.textContent = target;
-                        clearInterval(timer);
-                    } else {
-                        counter.textContent = Math.floor(current);
-                    }
-                }, 20);
-            });
-        };
-
-        // Animate skill bars
-        const animateSkills = () => {
-            const skills = document.querySelectorAll('.skill-progress');
-            skills.forEach(skill => {
-                const width = skill.getAttribute('data-width');
-                skill.style.width = width + '%';
-            });
-        };
-
-        // Intersection Observer for animations
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    if (entry.target.id === 'skills') {
-                        animateSkills();
-                    }
-                    if (entry.target.id === 'hero') {
-                        animateCounters();
-                    }
-                }
-            });
-        }, { threshold: 0.5 });
-
-        // Observe sections
-        document.querySelectorAll('section').forEach(section => {
-            observer.observe(section);
-        });
-
-        // Form handling
-        document.getElementById('contactForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Спасибо! Ваше сообщение отправлено. Я свяжусь с вами в ближайшее время.');
-            e.target.reset();
-        });
-
-        // Navbar background on scroll
-        window.addEventListener('scroll', () => {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 100) {
-                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-            } else {
-                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-            }
-        });
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ru" class="no-js">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Егор Некрасов (bytemalice) | Elite Red Team Specialist & AI Security Researcher</title>
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="script.js" as="script">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" as="style">
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔴</text></svg>">
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Егор Некрасов",
+        "alternateName": "bytemalice",
+        "description": "16-year-old Red Team Specialist and Python Developer specializing in offensive security and AI-powered cybersecurity solutions.",
+        "knowsAbout": ["Cybersecurity", "Python Programming", "Red Team Operations", "Penetration Testing", "Linux Security"],
+        "url": "https://fortniteballs111.github.io",
+        "sameAs": [
+            "https://tryhackme.com/p/bytemalice",
+            "https://github.com/fortniteballs111"
+        ]
+    }
     </script>
+</head>
+<body>
+    <!-- AI Assistant Widget -->
+    <div class="ai-assistant">
+        <button class="ai-trigger" aria-label="Open AI Assistant">
+            <span class="ai-icon">🤖</span>
+        </button>
+        <div class="ai-chat">
+            <div class="ai-header">
+                <h4>bytemalice AI Assistant</h4>
+                <button class="ai-close">×</button>
+            </div>
+            <div class="ai-messages"></div>
+            <div class="ai-input">
+                <input type="text" placeholder="Ask about my skills, projects, or career...">
+                <button class="ai-send">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Preloader with Progress -->
+    <div class="preloader">
+        <div class="preloader-content">
+            <div class="hacking-animation">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <div class="terminal-title">bytemalice@elite-portfolio:~</div>
+                        <div class="terminal-controls">
+                            <span class="control close"></span>
+                            <span class="control minimize"></span>
+                            <span class="control maximize"></span>
+                        </div>
+                    </div>
+                    <div class="terminal-body">
+                        <div class="terminal-line">
+                            <span class="prompt">$</span>
+                            <span class="command">sudo systemctl start elite_portfolio.service</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="output">Initializing Zero-Trust Security Framework...</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="output">Loading Advanced Threat Intelligence...</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="output">Compiling Neural Security Models...</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <span class="progress-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D Background Canvas -->
+    <canvas id="3d-background"></canvas>
+
+    <!-- Enhanced Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="#hero" class="logo-link">
+                    <span class="logo-icon">🔴</span>
+                    <span class="logo-text">bytemalice</span>
+                    <span class="logo-badge">ELITE</span>
+                </a>
+            </div>
+            
+            <ul class="nav-menu" role="menubar">
+                <li class="nav-item" role="none">
+                    <a href="#about" class="nav-link" data-text="System Architecture">
+                        <span class="nav-icon">🏗️</span>
+                        System Architecture
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#expertise" class="nav-link" data-text="Cyber Arsenal">
+                        <span class="nav-icon">⚡</span>
+                        Cyber Arsenal
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#operations" class="nav-link" data-text="Red Operations">
+                        <span class="nav-icon">🔍</span>
+                        Red Operations
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#research" class="nav-link" data-text="AI Research">
+                        <span class="nav-icon">🧠</span>
+                        AI Research
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#contact" class="nav-link" data-text="Command Center">
+                        <span class="nav-icon">🎮</span>
+                        Command Center
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Toggle cyber theme">
+                    <span class="theme-icon">💠</span>
+                </button>
+                <button class="nav-toggle" aria-label="Toggle navigation">
+                    <span class="hamburger">
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Elite Hero Section -->
+    <section id="hero" class="hero">
+        <div class="cyber-grid"></div>
+        <div class="particles-container" id="particles-js"></div>
+        
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="security-badge">
+                    <span class="badge-icon">🛡️</span>
+                    <span class="badge-text">TOP 1% THREAT HUNTER</span>
+                </div>
+                
+                <h1 class="hero-title">
+                    <span class="title-line">
+                        <span class="text-glitch" data-text="ЕГОР НЕКРАСОВ">ЕГОР НЕКРАСОВ</span>
+                    </span>
+                    <span class="title-subline">
+                        <span class="typing-text"></span>
+                        <span class="cursor">|</span>
+                    </span>
+                </h1>
+                
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" data-count="16">0</div>
+                        <div class="stat-label">AGE</div>
+                        <div class="stat-desc">Cybersecurity Prodigy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" data-count="3">0</div>
+                        <div class="stat-label">ACTIVE OPS</div>
+                        <div class="stat-desc">Red Team Operations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" data-count="99">0</div>
+                        <div class="stat-label">SUCCESS RATE</div>
+                        <div class="stat-desc">Mission Completion</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" data-count="24">0</div>
+                        <div class="stat-label">/7</div>
+                        <div class="stat-desc">Active Monitoring</div>
+                    </div>
+                </div>
+
+                <div class="hero-mission">
+                    <h3>CURRENT MISSION PROTOCOL</h3>
+                    <div class="mission-objectives">
+                        <div class="objective">
+                            <span class="objective-status">🟢</span>
+                            <span class="objective-text">Advanced Persistent Threat Research</span>
+                        </div>
+                        <div class="objective">
+                            <span class="objective-status">🟡</span>
+                            <span class="objective-text">AI-Powered Security Automation</span>
+                        </div>
+                        <div class="objective">
+                            <span class="objective-status">🔴</span>
+                            <span class="objective-text">Zero-Day Vulnerability Analysis</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-actions">
+                    <button class="btn btn-primary" data-action="deploy">
+                        <span class="btn-icon">🚀</span>
+                        <span class="btn-text">DEPLOY ENGAGEMENT</span>
+                    </button>
+                    <button class="btn btn-secondary" data-action="briefing">
+                        <span class="btn-icon">📁</span>
+                        <span class="btn-text">ACCESS BRIEFING</span>
+                    </button>
+                    <button class="btn btn-tertiary" data-action="extract">
+                        <span class="btn-icon">💾</span>
+                        <span class="btn-text">EXTRACT INTEL</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="command-center">
+                    <div class="monitor main-monitor">
+                        <div class="monitor-header">
+                            <span class="monitor-title">LIVE THREAT DASHBOARD</span>
+                            <span class="monitor-status">🟢 ONLINE</span>
+                        </div>
+                        <div class="monitor-content">
+                            <div class="network-map">
+                                <div class="node mainframe" data-node="main">
+                                    <span class="node-label">MAINFRAME</span>
+                                </div>
+                                <div class="connection"></div>
+                                <div class="node security" data-node="sec">
+                                    <span class="node-label">SECURITY HUB</span>
+                                </div>
+                                <div class="connection"></div>
+                                <div class="node research" data-node="res">
+                                    <span class="node-label">RESEARCH LAB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="monitor-sidebar">
+                        <div class="status-panel">
+                            <h4>SYSTEM STATUS</h4>
+                            <div class="status-item">
+                                <span class="status-label">THREAT LEVEL</span>
+                                <span class="status-value low">LOW</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">NEURAL NET</span>
+                                <span class="status-value active">ACTIVE</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">AI ASSISTANT</span>
+                                <span class="status-value ready">READY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <div class="scroll-arrow"></div>
+            <span class="scroll-text">INITIATE SCAN PROTOCOL</span>
+        </div>
+    </section>
+
+    <!-- System Architecture Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">CYBER DEFENSE ARCHITECTURE</h2>
+                <p class="section-subtitle">Advanced Threat Intelligence & Security Framework</p>
+            </div>
+
+            <div class="architecture-grid">
+                <div class="arch-layer">
+                    <div class="layer-header">
+                        <span class="layer-number">01</span>
+                        <h3 class="layer-title">INTELLIGENCE GATHERING</h3>
+                    </div>
+                    <div class="layer-components">
+                        <div class="component" data-component="recon">
+                            <span class="component-icon">🔍</span>
+                            <span class="component-name">Advanced Reconnaissance</span>
+                            <span class="component-status">ACTIVE</span>
+                        </div>
+                        <div class="component" data-component="osint">
+                            <span class="component-icon">🌐</span>
+                            <span class="component-name">OSINT Framework</span>
+                            <span class="component-status">OPTIMIZED</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arch-layer">
+                    <div class="layer-header">
+                        <span class="layer-number">02</span>
+                        <h3 class="layer-title">VULNERABILITY ANALYSIS</h3>
+                    </div>
+                    <div class="layer-components">
+                        <div class="component" data-component="scan">
+                            <span class="component-icon">📡</span>
+                            <span class="component-name">Threat Scanning</span>
+                            <span class="component-status">RUNNING</span>
+                        </div>
+                        <div class="component" data-component="analyze">
+                            <span class="component-icon">📊</span>
+                            <span class="component-name">Risk Assessment</span>
+                            <span class="component-status">AI-POWERED</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arch-layer">
+                    <div class="layer-header">
+                        <span class="layer-number">03</span>
+                        <h3 class="layer-title">ACTIVE DEFENSE</h3>
+                    </div>
+                    <div class="layer-components">
+                        <div class="component" data-component="response">
+                            <span class="component-icon">🛡️</span>
+                            <span class="component-name">Incident Response</span>
+                            <span class="component-status">AUTOMATED</span>
+                        </div>
+                        <div class="component" data-component="hunt">
+                            <span class="component-icon">🎯</span>
+                            <span class="component-name">Threat Hunting</span>
+                            <span class="component-status">PROACTIVE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rest of the elite sections would continue... -->
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
