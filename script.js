@@ -287,10 +287,10 @@ class ElitePortfolio {
     animateTypingText() {
         const typingElement = document.querySelector('.typing-text');
         const texts = [
-            'ELITE RED TEAM SPECIALIST',
-            'PYTHON DEVELOPER',
-            'CYBER THREAT HUNTER',
-            'SECURITY RESEARCHER'
+    'ASPIRING RED TEAM SPECIALIST',
+    'PYTHON DEVELOPER', 
+    'SECURITY ENTHUSIAST',
+    'CTF PLAYER'
         ];
         
         let textIndex = 0;
@@ -749,3 +749,4 @@ window.addEventListener('load', () => {
     // Можно добавить отложенную загрузку дополнительных ресурсов
     console.log('Page fully loaded');
 });
+
