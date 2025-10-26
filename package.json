@@ -1,8 +1,8 @@
 {
-  "name": "elite-portfolio",
+  "name": "bytemalice-portfolio",
   "version": "1.0.0",
-  "description": "Enterprise-grade portfolio website",
-  "type": "module",
+  "description": "Red Team & Python Developer Portfolio - Enterprise-grade security research and development",
+  "type": "module", 
   "scripts": {
     "dev": "vite",
     "build": "vite build",
