@@ -1,3 +1,37 @@
+import particlesJS from 'particles.js'
+
+// Инициализация particles.js после загрузки
+window.addEventListener('DOMContentLoaded', () => {
+  if (typeof particlesJS !== 'undefined') {
+    particlesJS('particles-js', {
+      particles: {
+        number: { value: 80 },
+        color: { value: "#dc2626" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5 },
+        size: { value: 3 },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#dc2626",
+          opacity: 0.2,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 2,
+          direction: "none",
+          random: true,
+          straight: false,
+          out_mode: "out"
+        }
+      }
+    });
+  }
+});
+
+// Остальной код JavaScript остается таким же...
+// [вставь сюда весь остальной код из предыдущего script.js]
 // Advanced animations and interactions
 class PortfolioAnimations {
     constructor() {
@@ -355,3 +389,4 @@ window.addEventListener('scroll', () => {
         }
     });
 });
+
