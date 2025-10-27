@@ -765,7 +765,7 @@ function showCyberNotification(message, duration = 3000) {
         box-shadow: var(--shadow-cyber);
         z-index: 10000;
         transform: translateX(400px);
-        transition: transform 0.3s ease;
+        transition: transform 1s ease;
         font-family: 'JetBrains Mono', monospace;
         font-size: 0.9rem;
     `;
@@ -802,6 +802,7 @@ window.addEventListener('load', () => {
 function handleButtonAction(action, element) {
     switch (action) {
         case 'deploy':
+
             showCyberNotification('Portfolio engagement activated');
             break;
             
@@ -850,6 +851,7 @@ window.addEventListener('error', (e) => {
 window.addEventListener('unhandledrejection', (e) => {
     console.log('Promise error:', e.reason);
 });
+
 
 
 
