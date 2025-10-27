@@ -121,14 +121,34 @@ class ElitePortfolio {
     }
 
     // ===== CYBER THEME SYSTEM =====
-    setupTheme() {
-        this.currentTheme = localStorage.getItem('cyber-theme') || 'cyber';
-        document.documentElement.setAttribute('data-theme', this.currentTheme);
-        this.updateThemeIcon();
+setupTheme() {
+    this.currentTheme = localStorage.getItem('cyber-theme') || 'cyber';
+    document.documentElement.setAttribute('data-theme', this.currentTheme);
+    this.updateThemeIcon();
 
-        const themeToggle = document.querySelector('.theme-toggle');
+    const themeToggle = document.querySelector('.theme-toggle');
+    if (themeToggle) {
         themeToggle.addEventListener('click', () => this.toggleTheme());
     }
+}
+
+toggleTheme() {
+    this.currentTheme = this.currentTheme === 'cyber' ? 'light' : 'cyber';
+    this.applyTheme();
+    localStorage.setItem('cyber-theme', this.currentTheme);
+}
+
+applyTheme() {
+    document.documentElement.setAttribute('data-theme', this.currentTheme);
+    this.updateThemeIcon();
+}
+
+updateThemeIcon() {
+    const icon = document.querySelector('.theme-icon');
+    if (icon) {
+        icon.textContent = this.currentTheme === 'cyber' ? '☀️' : '🌙';
+    }
+}
 
     toggleTheme() {
         this.currentTheme = this.currentTheme === 'cyber' ? 'light' : 'cyber';
@@ -620,7 +640,27 @@ function setupGlobalInteractions() {
             }
         });
     });
+// === ДОБАВЬ ЭТОТ КОД ===
+    // Button action handlers
+    document.querySelectorAll('[data-action]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const action = this.getAttribute('data-action');
+            handleButtonAction(action, this);
+        });
+    });
 
+    // Contact form handling
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            showCyberNotification('Thank you! Your message has been sent.');
+            this.reset();
+        });
+    }
+    // === КОНЕЦ ДОБАВЛЕННОГО КОДА ===
+}
     // Button action handlers
     document.querySelectorAll('[data-action]').forEach(button => {
         button.addEventListener('click', function() {
@@ -757,6 +797,58 @@ window.addEventListener('unhandledrejection', (event) => {
 window.addEventListener('load', () => {
     // Можно добавить отложенную загрузку дополнительных ресурсов
     console.log('Page fully loaded');
+});
+// ===== BUTTON ACTIONS =====
+function handleButtonAction(action, element) {
+    switch (action) {
+        case 'deploy':
+            showCyberNotification('Portfolio engagement activated');
+            break;
+            
+        case 'briefing':
+            document.getElementById('skills')?.scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+            break;
+            
+        case 'extract':
+            document.getElementById('contact')?.scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+            break;
+    }
+}
+
+// ===== NOTIFICATION SYSTEM =====
+function showCyberNotification(message, duration = 3000) {
+    const notification = document.createElement('div');
+    notification.innerHTML = `
+        <div style="padding: 10px; background: #1a1a2f; border: 1px solid #00f0ff; border-radius: 5px; color: white;">
+            ${message}
+        </div>
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, duration);
+}
+
+// ===== ERROR HANDLING =====
+window.addEventListener('error', (e) => {
+    console.log('Error:', e.error);
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+    console.log('Promise error:', e.reason);
 });
 
 
