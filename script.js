@@ -747,7 +747,7 @@ function showCyberNotification(message, duration = 3000) {
     notification.className = 'cyber-notification';
     notification.innerHTML = `
         <div class="notification-header">
-            <span class="notification-icon">⚠️</span>
+            <span class="notification-icon"></span>
             <span class="notification-title">SYSTEM ALERT</span>
         </div>
         <div class="notification-content">${message}</div>
@@ -850,5 +850,6 @@ window.addEventListener('error', (e) => {
 window.addEventListener('unhandledrejection', (e) => {
     console.log('Promise error:', e.reason);
 });
+
 
 
