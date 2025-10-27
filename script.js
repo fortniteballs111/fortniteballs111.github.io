@@ -5,28 +5,46 @@ window.addEventListener('error', function(e) {
 
 window.addEventListener('unhandledrejection', function(e) {
     console.error('Unhandled promise rejection:', e.reason);
-    e.preventDefault();
 });
+
 // ===== ELITE PORTFOLIO INITIALIZATION =====
 class ElitePortfolio {
     constructor() {
         this.isInitialized = false;
         this.currentTheme = 'cyber';
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+        this.particles = null;
         this.init();
     }
 
     async init() {
-        await this.setupPreloader();
-        this.setupTheme();
-        this.setupNavigation();
-        this.setupParticles();
-        this.setupAnimations();
-        this.setup3DBackground();
-        this.setupCyberEffects();
-        this.setupPerformanceMonitor();
-        
-        this.isInitialized = true;
-        console.log('🚀 Elite Portfolio Initialized');
+        try {
+            await this.setupPreloader();
+            this.setupTheme();
+            this.setupNavigation();
+            this.setupParticles();
+            this.setupAnimations();
+            this.setup3DBackground();
+            this.setupCyberEffects();
+            this.setupEventListeners();
+            this.setupPerformanceMonitor();
+            
+            this.isInitialized = true;
+            console.log('🚀 Elite Portfolio Initialized');
+        } catch (error) {
+            console.error('Initialization error:', error);
+            this.fallbackToContent();
+        }
+    }
+
+    fallbackToContent() {
+        const preloader = document.querySelector('.preloader');
+        if (preloader) {
+            preloader.style.display = 'none';
+        }
+        document.body.style.visibility = 'visible';
     }
 
     // ===== ADVANCED PRELOADER =====
@@ -35,11 +53,15 @@ class ElitePortfolio {
         const progressFill = document.querySelector('.progress-fill');
         const progressText = document.querySelector('.progress-text');
         
-        // Быстрая загрузка - максимум 3 секунды
+        if (!preloader) {
+            console.warn('Preloader not found, skipping');
+            return;
+        }
+
         const steps = [
-            { text: "Initializing Security Framework...", duration: 600 },
-            { text: "Loading Threat Intelligence...", duration: 600 },
-            { text: "Activating Defense Systems...", duration: 600 }
+            { text: "Initializing Security Framework...", duration: 400 },
+            { text: "Loading Threat Intelligence...", duration: 400 },
+            { text: "Activating Defense Systems...", duration: 400 }
         ];
 
         let progress = 0;
@@ -47,40 +69,41 @@ class ElitePortfolio {
         for (let i = 0; i < steps.length; i++) {
             const step = steps[i];
             
-            // Update terminal output
-            this.addTerminalLine(step.text, 'output');
+            if (this.addTerminalLine) {
+                this.addTerminalLine(step.text, 'output');
+            }
             
-            // Быстрая анимация прогресса
-            await this.animateProgress(progress, progress + 33, 600, (value) => {
+            await this.animateProgress(progress, progress + 33, 400, (value) => {
                 progress = value;
-                progressFill.style.width = `${progress}%`;
-                progressText.textContent = `${Math.round(progress)}%`;
+                if (progressFill) progressFill.style.width = `${progress}%`;
+                if (progressText) progressText.textContent = `${Math.round(progress)}%`;
             });
             
             await this.delay(step.duration);
         }
 
-        // Complete loading
-        await this.animateProgress(progress, 100, 400, (value) => {
-            progressFill.style.width = `${value}%`;
-            progressText.textContent = `${Math.round(value)}%`;
+        await this.animateProgress(progress, 100, 300, (value) => {
+            if (progressFill) progressFill.style.width = `${value}%`;
+            if (progressText) progressText.textContent = `${Math.round(value)}%`;
         });
 
-        this.addTerminalLine("System ready. Welcome, bytemalice.", 'success');
+        if (this.addTerminalLine) {
+            this.addTerminalLine("System ready. Welcome, bytemalice.", 'success');
+        }
         
-        await this.delay(500);
-        
-        // Быстрое исчезновение прелоадера
-        preloader.style.opacity = '0';
         await this.delay(300);
+        
+        preloader.style.opacity = '0';
+        await this.delay(200);
         preloader.style.display = 'none';
         
-        // Initialize main content animations
         this.animateHeroContent();
     }
 
     addTerminalLine(text, type = 'output') {
         const terminalBody = document.querySelector('.terminal-body');
+        if (!terminalBody) return;
+        
         const line = document.createElement('div');
         line.className = 'terminal-line';
         
@@ -99,10 +122,12 @@ class ElitePortfolio {
     animateProgress(from, to, duration, onUpdate) {
         return new Promise(resolve => {
             const startTime = performance.now();
+            
             const updateProgress = (currentTime) => {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                const value = from + (to - from) * progress;
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const value = from + (to - from) * easeOut;
                 
                 onUpdate(value);
                 
@@ -121,34 +146,15 @@ class ElitePortfolio {
     }
 
     // ===== CYBER THEME SYSTEM =====
-setupTheme() {
-    this.currentTheme = localStorage.getItem('cyber-theme') || 'cyber';
-    document.documentElement.setAttribute('data-theme', this.currentTheme);
-    this.updateThemeIcon();
+    setupTheme() {
+        this.currentTheme = localStorage.getItem('cyber-theme') || 'cyber';
+        this.applyTheme();
 
-    const themeToggle = document.querySelector('.theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => this.toggleTheme());
+        const themeToggle = document.querySelector('.theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => this.toggleTheme());
+        }
     }
-}
-
-toggleTheme() {
-    this.currentTheme = this.currentTheme === 'cyber' ? 'light' : 'cyber';
-    this.applyTheme();
-    localStorage.setItem('cyber-theme', this.currentTheme);
-}
-
-applyTheme() {
-    document.documentElement.setAttribute('data-theme', this.currentTheme);
-    this.updateThemeIcon();
-}
-
-updateThemeIcon() {
-    const icon = document.querySelector('.theme-icon');
-    if (icon) {
-        icon.textContent = this.currentTheme === 'cyber' ? '☀️' : '🌙';
-    }
-}
 
     toggleTheme() {
         this.currentTheme = this.currentTheme === 'cyber' ? 'light' : 'cyber';
@@ -159,11 +165,14 @@ updateThemeIcon() {
     applyTheme() {
         document.documentElement.setAttribute('data-theme', this.currentTheme);
         this.updateThemeIcon();
+        this.update3DColors();
     }
 
     updateThemeIcon() {
         const icon = document.querySelector('.theme-icon');
-        icon.textContent = this.currentTheme === 'cyber' ? '💠' : '☀️';
+        if (icon) {
+            icon.textContent = this.currentTheme === 'cyber' ? '💠' : '☀️';
+        }
     }
 
     // ===== ADVANCED NAVIGATION =====
@@ -171,29 +180,27 @@ updateThemeIcon() {
         this.setupMobileMenu();
         this.setupScrollSpy();
         this.setupNavbarEffects();
+        this.setupSmoothScrolling();
     }
 
     setupMobileMenu() {
         const navToggle = document.createElement('button');
         navToggle.className = 'nav-toggle';
         navToggle.setAttribute('aria-label', 'Toggle navigation');
-        navToggle.innerHTML = `
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        `;
+        navToggle.innerHTML = `<span></span><span></span><span></span>`;
 
         const navContainer = document.querySelector('.nav-container');
-        navContainer.appendChild(navToggle);
-
         const navMenu = document.querySelector('.nav-menu');
         
+        if (!navContainer || !navMenu) return;
+
+        navContainer.appendChild(navToggle);
+
         navToggle.addEventListener('click', () => {
             navToggle.classList.toggle('active');
             navMenu.classList.toggle('active');
         });
 
-        // Close menu on link click
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', () => {
                 navToggle.classList.remove('active');
@@ -206,6 +213,8 @@ updateThemeIcon() {
         const sections = document.querySelectorAll('section[id]');
         const navLinks = document.querySelectorAll('.nav-link');
         
+        if (sections.length === 0 || navLinks.length === 0) return;
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -218,16 +227,15 @@ updateThemeIcon() {
                     });
                 }
             });
-        }, {
-            threshold: 0.5,
-            rootMargin: '-20% 0px -20% 0px'
-        });
+        }, { threshold: 0.5 });
 
         sections.forEach(section => observer.observe(section));
     }
 
     setupNavbarEffects() {
         const navbar = document.querySelector('.navbar');
+        if (!navbar) return;
+
         let lastScrollY = window.scrollY;
         
         window.addEventListener('scroll', () => {
@@ -245,32 +253,36 @@ updateThemeIcon() {
         });
     }
 
+    setupSmoothScrolling() {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(anchor.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    }
+
     // ===== PARTICLE BACKGROUND =====
     setupParticles() {
-        if (typeof particlesJS !== 'undefined') {
+        if (typeof particlesJS === 'undefined') {
+            console.warn('Particles.js not loaded');
+            return;
+        }
+
+        try {
             particlesJS('particles-js', {
                 particles: {
-                    number: {
-                        value: 80,
-                        density: {
-                            enable: true,
-                            value_area: 800
-                        }
-                    },
-                    color: {
-                        value: ['#00f0ff', '#ff003c', '#00ff88', '#b967ff']
-                    },
-                    shape: {
-                        type: 'circle'
-                    },
-                    opacity: {
-                        value: 0.5,
-                        random: true
-                    },
-                    size: {
-                        value: 3,
-                        random: true
-                    },
+                    number: { value: 60, density: { enable: true, value_area: 800 } },
+                    color: { value: ['#00f0ff', '#ff003c', '#00ff88', '#b967ff'] },
+                    shape: { type: 'circle' },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
                     line_linked: {
                         enable: true,
                         distance: 150,
@@ -290,18 +302,14 @@ updateThemeIcon() {
                 interactivity: {
                     detect_on: 'canvas',
                     events: {
-                        onhover: {
-                            enable: true,
-                            mode: 'grab'
-                        },
-                        onclick: {
-                            enable: true,
-                            mode: 'push'
-                        }
+                        onhover: { enable: true, mode: 'grab' },
+                        onclick: { enable: true, mode: 'push' }
                     }
                 },
                 retina_detect: true
             });
+        } catch (error) {
+            console.warn('Particles.js initialization failed:', error);
         }
     }
 
@@ -315,18 +323,23 @@ updateThemeIcon() {
 
     animateTypingText() {
         const typingElement = document.querySelector('.typing-text');
+        if (!typingElement) return;
+
         const texts = [
-    'ASPIRING RED TEAM SPECIALIST',
-    'PYTHON DEVELOPER', 
-    'SECURITY ENTHUSIAST',
-    'CTF PLAYER'
+            'ASPIRING RED TEAM SPECIALIST',
+            'PYTHON DEVELOPER', 
+            'SECURITY ENTHUSIAST',
+            'CTF PLAYER'
         ];
         
         let textIndex = 0;
         let charIndex = 0;
         let isDeleting = false;
+        let isPaused = false;
         
         const type = () => {
+            if (isPaused) return;
+            
             const currentText = texts[textIndex];
             
             if (isDeleting) {
@@ -338,8 +351,12 @@ updateThemeIcon() {
             }
             
             if (!isDeleting && charIndex === currentText.length) {
-                isDeleting = true;
-                setTimeout(type, 2000);
+                isPaused = true;
+                setTimeout(() => {
+                    isPaused = false;
+                    isDeleting = true;
+                    type();
+                }, 2000);
             } else if (isDeleting && charIndex === 0) {
                 isDeleting = false;
                 textIndex = (textIndex + 1) % texts.length;
@@ -354,6 +371,7 @@ updateThemeIcon() {
 
     animateStats() {
         const stats = document.querySelectorAll('.stat-value[data-count]');
+        if (stats.length === 0) return;
         
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -369,17 +387,17 @@ updateThemeIcon() {
 
     animateCounter(element) {
         const target = parseInt(element.getAttribute('data-count'));
-        const duration = 1500;
+        const duration = 2000;
         const startTime = performance.now();
         
         const updateCounter = (currentTime) => {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
-            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-            const value = Math.floor(easeOutQuart * target);
+            const easeOut = 1 - Math.pow(1 - progress, 4);
+            const value = Math.floor(easeOut * target);
             
-            element.textContent = value;
+            element.textContent = value.toLocaleString();
             
             if (progress < 1) {
                 requestAnimationFrame(updateCounter);
@@ -392,12 +410,13 @@ updateThemeIcon() {
     animateNetworkNodes() {
         const nodes = document.querySelectorAll('.node');
         nodes.forEach((node, index) => {
-            node.style.animationDelay = `${index * 0.3}s`;
+            node.style.animationDelay = `${index * 0.2}s`;
         });
     }
 
     animateSkillBars() {
         const skillBars = document.querySelectorAll('.skill-progress');
+        if (skillBars.length === 0) return;
         
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -422,7 +441,7 @@ updateThemeIcon() {
         try {
             this.setupThreeScene();
         } catch (error) {
-            console.warn('3D background failed, continuing without it:', error);
+            console.warn('3D background failed:', error);
         }
     }
 
@@ -430,73 +449,100 @@ updateThemeIcon() {
         const canvas = document.getElementById('3d-background');
         if (!canvas) return;
 
-        // Scene
-        const scene = new THREE.Scene();
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera.position.z = 50;
 
-        // Camera
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 50;
-
-        // Renderer
-        const renderer = new THREE.WebGLRenderer({
+        this.renderer = new THREE.WebGLRenderer({
             canvas: canvas,
             alpha: true,
             antialias: true
         });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Simple particles
-        const particlesGeometry = new THREE.BufferGeometry();
-        const count = 500; // Меньше частиц для производительности
+        this.createParticles();
+        this.animate3D();
 
+        window.addEventListener('resize', () => this.handleResize());
+    }
+
+    createParticles() {
+        const count = 300;
         const positions = new Float32Array(count * 3);
         const colors = new Float32Array(count * 3);
 
         for (let i = 0; i < count * 3; i += 3) {
-            positions[i] = (Math.random() - 0.5) * 100;
-            positions[i + 1] = (Math.random() - 0.5) * 100;
-            positions[i + 2] = (Math.random() - 0.5) * 100;
+            positions[i] = (Math.random() - 0.5) * 200;
+            positions[i + 1] = (Math.random() - 0.5) * 200;
+            positions[i + 2] = (Math.random() - 0.5) * 200;
 
-            const colorPalette = [
-                [0, 0.94, 1],    // Neon Blue
-                [1, 0, 0.24],    // Neon Red
-                [0, 1, 0.53],    // Neon Green
-            ];
-            const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+            const color = this.getParticleColor();
             colors[i] = color[0];
             colors[i + 1] = color[1];
             colors[i + 2] = color[2];
         }
 
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 1,
+        const material = new THREE.PointsMaterial({
+            size: 2,
             vertexColors: true,
             transparent: true,
             opacity: 0.6
         });
 
-        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particles);
+        this.particles = new THREE.Points(geometry, material);
+        this.scene.add(this.particles);
+    }
 
-        // Animation
-        const animate = () => {
-            requestAnimationFrame(animate);
-            particles.rotation.x += 0.0002;
-            particles.rotation.y += 0.0005;
-            renderer.render(scene, camera);
+    getParticleColor() {
+        const colors = {
+            cyber: [
+                [0, 0.94, 1],    // Neon Blue
+                [1, 0, 0.24],    // Neon Red
+                [0, 1, 0.53],    // Neon Green
+            ],
+            light: [
+                [0.2, 0.4, 0.8], // Blue
+                [0.8, 0.2, 0.2], // Red
+                [0.2, 0.6, 0.2], // Green
+            ]
         };
-        animate();
+        
+        const palette = colors[this.currentTheme] || colors.cyber;
+        return palette[Math.floor(Math.random() * palette.length)];
+    }
 
-        // Handle resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+    update3DColors() {
+        if (!this.particles) return;
+        
+        const colors = this.particles.geometry.attributes.color;
+        for (let i = 0; i < colors.count; i++) {
+            const color = this.getParticleColor();
+            colors.setXYZ(i, color[0], color[1], color[2]);
+        }
+        colors.needsUpdate = true;
+    }
+
+    animate3D() {
+        if (!this.particles || !this.scene || !this.camera || !this.renderer) return;
+
+        requestAnimationFrame(() => this.animate3D());
+        
+        this.particles.rotation.x += 0.0002;
+        this.particles.rotation.y += 0.0005;
+        this.renderer.render(this.scene, this.camera);
+    }
+
+    handleResize() {
+        if (!this.camera || !this.renderer) return;
+        
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
     // ===== CYBER EFFECTS =====
@@ -529,12 +575,12 @@ updateThemeIcon() {
             setTimeout(() => {
                 element.style.transform = originalTransform;
                 element.classList.remove('glitching');
-            }, 100);
-        }, 100);
+            }, 80);
+        }, 80);
     }
 
     setupHoverEffects() {
-        const interactiveElements = document.querySelectorAll('.btn, .project-card');
+        const interactiveElements = document.querySelectorAll('.btn, .project-card, .skill-item');
         
         interactiveElements.forEach(element => {
             element.addEventListener('mouseenter', (e) => {
@@ -561,7 +607,6 @@ updateThemeIcon() {
 
         button.appendChild(circle);
 
-        // Remove after animation
         setTimeout(() => circle.remove(), 600);
     }
 
@@ -572,30 +617,199 @@ updateThemeIcon() {
                     entry.target.classList.add('cyber-reveal');
                 }
             });
-        }, {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        });
+        }, { threshold: 0.1 });
 
-        document.querySelectorAll('section').forEach(section => {
-            observer.observe(section);
+        document.querySelectorAll('section, .project-card, .skill-item').forEach(element => {
+            observer.observe(element);
+        });
+    }
+
+    // ===== EVENT LISTENERS =====
+    setupEventListeners() {
+        this.setupButtonActions();
+        this.setupFormHandlers();
+        this.setupKeyboardShortcuts();
+    }
+
+    setupButtonActions() {
+        document.querySelectorAll('[data-action]').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const action = button.getAttribute('data-action');
+                this.handleButtonAction(action, button);
+            });
+        });
+    }
+
+    setupFormHandlers() {
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleFormSubmit(contactForm);
+            });
+        }
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 't') {
+                e.preventDefault();
+                this.toggleTheme();
+            }
+            
+            if (e.key === 'Escape') {
+                this.closeAllModals();
+            }
+        });
+    }
+
+    handleButtonAction(action, element) {
+        switch (action) {
+            case 'deploy':
+                this.simulateDeployment();
+                break;
+            case 'briefing':
+                this.showMissionBriefing();
+                break;
+            case 'extract':
+                this.downloadIntel();
+                break;
+            case 'contact':
+                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                break;
+            default:
+                console.log('Unknown action:', action);
+        }
+    }
+
+    simulateDeployment() {
+        const steps = [
+            "Initializing deployment protocol...",
+            "Authenticating security clearance...",
+            "Mission parameters set. Ready for operation."
+        ];
+
+        steps.forEach((step, index) => {
+            setTimeout(() => {
+                this.showCyberNotification(step);
+            }, index * 800);
+        });
+    }
+
+    showMissionBriefing() {
+        const briefing = `
+            ACTIVE OPERATIONS:
+            • TryHackMe Red Team Path
+            • Python Security Tools
+            • Linux Security Research
+            • CTF Competition Training
+            
+            STATUS: OPERATIONAL
+        `;
+        
+        this.showCyberNotification(briefing, 5000);
+    }
+
+    downloadIntel() {
+        this.showCyberNotification("Preparing secure intel package...");
+        
+        setTimeout(() => {
+            this.showCyberNotification("Intel package ready for extraction.");
+            
+            // Создаем виртуальную загрузку
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent('Portfolio Intel Package\n\nName: Egor Nekrasov\nSpecialization: Red Team\nStatus: Active'));
+            element.setAttribute('download', 'intel_package.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }, 1500);
+    }
+
+    handleFormSubmit(form) {
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+        
+        console.log('Form submitted:', data);
+        this.showCyberNotification('Message transmitted securely. Standby for response.');
+        form.reset();
+    }
+
+    showCyberNotification(message, duration = 4000) {
+        const existingNotification = document.querySelector('.cyber-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = 'cyber-notification';
+        notification.innerHTML = `
+            <div class="notification-header">
+                <span class="notification-icon">⚠️</span>
+                <span class="notification-title">SYSTEM ALERT</span>
+            </div>
+            <div class="notification-content">${message}</div>
+        `;
+        
+        Object.assign(notification.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            background: 'var(--card-bg, #1a1a2f)',
+            border: '1px solid var(--accent, #00f0ff)',
+            borderRadius: '8px',
+            padding: '15px',
+            maxWidth: '400px',
+            boxShadow: '0 0 20px rgba(0, 240, 255, 0.3)',
+            zIndex: '10000',
+            transform: 'translateX(400px)',
+            transition: 'transform 0.3s ease',
+            fontFamily: 'JetBrains Mono, monospace',
+            fontSize: '0.9rem',
+            color: 'var(--text-primary, #e0e0e0)'
+        });
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(400px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }, duration);
+    }
+
+    closeAllModals() {
+        document.querySelectorAll('.cyber-notification').forEach(modal => {
+            modal.style.transform = 'translateX(400px)';
+            setTimeout(() => modal.remove(), 300);
         });
     }
 
     // ===== PERFORMANCE MONITOR =====
     setupPerformanceMonitor() {
-        // Простой мониторинг FPS
         let frameCount = 0;
         let lastTime = performance.now();
+        let fps = 60;
         
         const measureFPS = (currentTime) => {
             frameCount++;
             
             if (currentTime - lastTime >= 1000) {
-                const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                
                 if (fps < 45) {
-                    console.warn(`Low FPS: ${fps}`);
+                    console.warn(`Low FPS: ${fps}. Consider reducing animations.`);
                 }
+                
                 frameCount = 0;
                 lastTime = currentTime;
             }
@@ -605,254 +819,39 @@ updateThemeIcon() {
         
         requestAnimationFrame(measureFPS);
     }
+
+    // ===== CLEANUP =====
+    destroy() {
+        if (this.renderer) {
+            this.renderer.dispose();
+        }
+        window.removeEventListener('resize', this.handleResize);
+        this.isInitialized = false;
+    }
 }
 
 // ===== GLOBAL INITIALIZATION =====
 let elitePortfolio;
 
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        elitePortfolio = new ElitePortfolio();
-        setupGlobalInteractions();
-        console.log('🎯 Elite Portfolio fully operational');
-    } catch (error) {
-        console.error('Initialization error:', error);
-        // Fallback - hide preloader and show content
-        const preloader = document.querySelector('.preloader');
-        if (preloader) {
-            preloader.style.display = 'none';
-        }
+document.addEventListener('DOMContentLoaded', () => {
+    elitePortfolio = new ElitePortfolio();
+});
+
+// ===== PAGE VISIBILITY HANDLING =====
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // Пауза тяжелых анимаций при скрытии вкладки
+        console.log('Page hidden - optimizing performance');
+    } else {
+        console.log('Page visible - resuming normal operations');
     }
 });
 
-// ===== GLOBAL INTERACTIONS =====
-function setupGlobalInteractions() {
-    // Smooth scrolling for navigation links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-// === ДОБАВЬ ЭТОТ КОД ===
-    // Button action handlers
-    document.querySelectorAll('[data-action]').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const action = this.getAttribute('data-action');
-            handleButtonAction(action, this);
-        });
-    });
-
-    // Contact form handling
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            showCyberNotification('Thank you! Your message has been sent.');
-            this.reset();
-        });
-    }
-    // === КОНЕЦ ДОБАВЛЕННОГО КОДА ===
-}
-    // Button action handlers
-    document.querySelectorAll('[data-action]').forEach(button => {
-        button.addEventListener('click', function() {
-            const action = this.getAttribute('data-action');
-            handleButtonAction(action, this);
-        });
-    });
-
-    // Contact form handling
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            showCyberNotification('Message transmitted securely. Standby for response.');
-            this.reset();
-        });
-    }
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-        // Theme toggle with T key
-        if (e.key === 't' && e.ctrlKey) {
-            e.preventDefault();
-            elitePortfolio.toggleTheme();
-        }
-    });
-}
-
-function handleButtonAction(action, element) {
-    switch (action) {
-        case 'deploy':
-            simulateDeploymentSequence();
-            break;
-            
-        case 'briefing':
-            showMissionBriefing();
-            break;
-            
-        case 'extract':
-            downloadIntel();
-            break;
-    }
-}
-
-function simulateDeploymentSequence() {
-    const steps = [
-        "Initializing deployment protocol...",
-        "Authenticating security clearance...",
-        "Mission parameters set. Ready for operation."
-    ];
-
-    steps.forEach((step, index) => {
-        setTimeout(() => {
-            showCyberNotification(step);
-        }, index * 600);
-    });
-}
-
-function showMissionBriefing() {
-    const briefing = `
-        ACTIVE OPERATIONS:
-        • TryHackMe Red Team Path
-        • Python Security Tools
-        • Linux Security Research
-        • CTF Competition Training
-        
-        STATUS: OPERATIONAL
-    `;
-    
-    showCyberNotification(briefing, 4000);
-}
-
-function downloadIntel() {
-    showCyberNotification("Preparing secure intel package...");
-    
-    setTimeout(() => {
-        showCyberNotification("Intel package ready for extraction.");
-        // Здесь будет реальная загрузка файла
-    }, 1500);
-}
-
-function showCyberNotification(message, duration = 3000) {
-    const notification = document.createElement('div');
-    notification.className = 'cyber-notification';
-    notification.innerHTML = `
-        <div class="notification-header">
-            <span class="notification-icon"></span>
-            <span class="notification-title">SYSTEM ALERT</span>
-        </div>
-        <div class="notification-content">${message}</div>
-    `;
-    
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: var(--bg-card);
-        border: 1px solid var(--neon-blue);
-        border-radius: 10px;
-        padding: 15px;
-        max-width: 400px;
-        box-shadow: var(--shadow-cyber);
-        z-index: 10000;
-        transform: translateX(400px);
-        transition: transform 0.3s ease;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.9rem;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-    
-    setTimeout(() => {
-        notification.style.transform = 'translateX(400px)';
-        setTimeout(() => notification.remove(), 300);
-    }, duration);
-}
-
-// ===== ERROR HANDLING =====
-window.addEventListener('error', (event) => {
-    console.error('Global error:', event.error);
+// ===== OFFLINE SUPPORT =====
+window.addEventListener('online', () => {
+    elitePortfolio?.showCyberNotification('Connection restored', 2000);
 });
 
-window.addEventListener('unhandledrejection', (event) => {
-    console.error('Unhandled promise rejection:', event.reason);
-    event.preventDefault();
+window.addEventListener('offline', () => {
+    elitePortfolio?.showCyberNotification('Connection lost - working offline', 3000);
 });
-
-// ===== PERFORMANCE OPTIMIZATIONS =====
-// Отложенная загрузка тяжелых ресурсов
-window.addEventListener('load', () => {
-    // Можно добавить отложенную загрузку дополнительных ресурсов
-    console.log('Page fully loaded');
-});
-// ===== BUTTON ACTIONS =====
-function handleButtonAction(action, element) {
-    switch (action) {
-        case 'deploy':
-
-            showCyberNotification('Portfolio engagement activated');
-            break;
-            
-        case 'briefing':
-            document.getElementById('skills')?.scrollIntoView({ 
-                behavior: 'smooth' 
-            });
-            break;
-            
-        case 'extract':
-            document.getElementById('contact')?.scrollIntoView({ 
-                behavior: 'smooth' 
-            });
-            break;
-    }
-}
-
-// ===== NOTIFICATION SYSTEM =====
-function showCyberNotification(message, duration = 3000) {
-    const notification = document.createElement('div');
-    notification.innerHTML = `
-        <div style="padding: 10px; background: #1a1a2f; border: 1px solid #00f0ff; border-radius: 5px; color: white;">
-            ${message}
-        </div>
-    `;
-    
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 10000;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, duration);
-}
-
-// ===== ERROR HANDLING =====
-window.addEventListener('error', (e) => {
-    console.log('Error:', e.error);
-});
-
-window.addEventListener('unhandledrejection', (e) => {
-    console.log('Promise error:', e.reason);
-});
-
-
-
-
-
