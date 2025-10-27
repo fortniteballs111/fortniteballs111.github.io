@@ -11,7 +11,6 @@ window.addEventListener('unhandledrejection', function(e) {
 class ElitePortfolio {
     constructor() {
         this.isInitialized = false;
-        this.currentTheme = 'cyber';
         this.scene = null;
         this.camera = null;
         this.renderer = null;
@@ -22,7 +21,6 @@ class ElitePortfolio {
     async init() {
         try {
             await this.setupPreloader();
-            this.setupTheme();
             this.setupNavigation();
             this.setupParticles();
             this.setupAnimations();
@@ -145,36 +143,6 @@ class ElitePortfolio {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    // ===== CYBER THEME SYSTEM =====
-    setupTheme() {
-        this.currentTheme = localStorage.getItem('cyber-theme') || 'cyber';
-        this.applyTheme();
-
-        const themeToggle = document.querySelector('.theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => this.toggleTheme());
-        }
-    }
-
-    toggleTheme() {
-        this.currentTheme = this.currentTheme === 'cyber' ? 'light' : 'cyber';
-        this.applyTheme();
-        localStorage.setItem('cyber-theme', this.currentTheme);
-    }
-
-    applyTheme() {
-        document.documentElement.setAttribute('data-theme', this.currentTheme);
-        this.updateThemeIcon();
-        this.update3DColors();
-    }
-
-    updateThemeIcon() {
-        const icon = document.querySelector('.theme-icon');
-        if (icon) {
-            icon.textContent = this.currentTheme === 'cyber' ? '💠' : '☀️';
-        }
-    }
-
     // ===== ADVANCED NAVIGATION =====
     setupNavigation() {
         this.setupMobileMenu();
@@ -184,17 +152,10 @@ class ElitePortfolio {
     }
 
     setupMobileMenu() {
-        const navToggle = document.createElement('button');
-        navToggle.className = 'nav-toggle';
-        navToggle.setAttribute('aria-label', 'Toggle navigation');
-        navToggle.innerHTML = `<span></span><span></span><span></span>`;
-
-        const navContainer = document.querySelector('.nav-container');
+        const navToggle = document.querySelector('.nav-toggle');
         const navMenu = document.querySelector('.nav-menu');
         
-        if (!navContainer || !navMenu) return;
-
-        navContainer.appendChild(navToggle);
+        if (!navToggle || !navMenu) return;
 
         navToggle.addEventListener('click', () => {
             navToggle.classList.toggle('active');
@@ -499,32 +460,13 @@ class ElitePortfolio {
     }
 
     getParticleColor() {
-        const colors = {
-            cyber: [
-                [0, 0.94, 1],    // Neon Blue
-                [1, 0, 0.24],    // Neon Red
-                [0, 1, 0.53],    // Neon Green
-            ],
-            light: [
-                [0.2, 0.4, 0.8], // Blue
-                [0.8, 0.2, 0.2], // Red
-                [0.2, 0.6, 0.2], // Green
-            ]
-        };
+        const colors = [
+            [0, 0.94, 1],    // Neon Blue
+            [1, 0, 0.24],    // Neon Red
+            [0, 1, 0.53],    // Neon Green
+        ];
         
-        const palette = colors[this.currentTheme] || colors.cyber;
-        return palette[Math.floor(Math.random() * palette.length)];
-    }
-
-    update3DColors() {
-        if (!this.particles) return;
-        
-        const colors = this.particles.geometry.attributes.color;
-        for (let i = 0; i < colors.count; i++) {
-            const color = this.getParticleColor();
-            colors.setXYZ(i, color[0], color[1], color[2]);
-        }
-        colors.needsUpdate = true;
+        return colors[Math.floor(Math.random() * colors.length)];
     }
 
     animate3D() {
@@ -626,106 +568,33 @@ class ElitePortfolio {
 
     // ===== EVENT LISTENERS =====
     setupEventListeners() {
-        this.setupButtonActions();
         this.setupFormHandlers();
-        this.setupKeyboardShortcuts();
-    }
-
-    setupButtonActions() {
-        document.querySelectorAll('[data-action]').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const action = button.getAttribute('data-action');
-                this.handleButtonAction(action, button);
-            });
-        });
+        this.removeUnwantedButtons();
     }
 
     setupFormHandlers() {
         const contactForm = document.getElementById('contactForm');
         if (contactForm) {
             contactForm.addEventListener('submit', (e) => {
-                e.preventDefault();
+                e.preventDefault(); // Важно: предотвращаем перезагрузку страницы
                 this.handleFormSubmit(contactForm);
             });
         }
     }
 
-    setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 't') {
-                e.preventDefault();
-                this.toggleTheme();
-            }
-            
-            if (e.key === 'Escape') {
-                this.closeAllModals();
-            }
+    // Убираем ненужные кнопки
+    removeUnwantedButtons() {
+        // Убираем кнопки DEPLOY/ACCESS/EXTRACT
+        const actionButtons = document.querySelectorAll('[data-action="deploy"], [data-action="briefing"], [data-action="extract"]');
+        actionButtons.forEach(button => {
+            button.style.display = 'none';
         });
-    }
 
-    handleButtonAction(action, element) {
-        switch (action) {
-            case 'deploy':
-                this.simulateDeployment();
-                break;
-            case 'briefing':
-                this.showMissionBriefing();
-                break;
-            case 'extract':
-                this.downloadIntel();
-                break;
-            case 'contact':
-                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                break;
-            default:
-                console.log('Unknown action:', action);
+        // Убираем переключатель темы
+        const themeToggle = document.querySelector('.theme-toggle');
+        if (themeToggle) {
+            themeToggle.style.display = 'none';
         }
-    }
-
-    simulateDeployment() {
-        const steps = [
-            "Initializing deployment protocol...",
-            "Authenticating security clearance...",
-            "Mission parameters set. Ready for operation."
-        ];
-
-        steps.forEach((step, index) => {
-            setTimeout(() => {
-                this.showCyberNotification(step);
-            }, index * 800);
-        });
-    }
-
-    showMissionBriefing() {
-        const briefing = `
-            ACTIVE OPERATIONS:
-            • TryHackMe Red Team Path
-            • Python Security Tools
-            • Linux Security Research
-            • CTF Competition Training
-            
-            STATUS: OPERATIONAL
-        `;
-        
-        this.showCyberNotification(briefing, 5000);
-    }
-
-    downloadIntel() {
-        this.showCyberNotification("Preparing secure intel package...");
-        
-        setTimeout(() => {
-            this.showCyberNotification("Intel package ready for extraction.");
-            
-            // Создаем виртуальную загрузку
-            const element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent('Portfolio Intel Package\n\nName: Egor Nekrasov\nSpecialization: Red Team\nStatus: Active'));
-            element.setAttribute('download', 'intel_package.txt');
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        }, 1500);
     }
 
     handleFormSubmit(form) {
@@ -733,7 +602,7 @@ class ElitePortfolio {
         const data = Object.fromEntries(formData);
         
         console.log('Form submitted:', data);
-        this.showCyberNotification('Message transmitted securely. Standby for response.');
+        this.showCyberNotification('Thank you! Your message has been sent successfully.');
         form.reset();
     }
 
@@ -757,8 +626,8 @@ class ElitePortfolio {
             position: 'fixed',
             top: '20px',
             right: '20px',
-            background: 'var(--card-bg, #1a1a2f)',
-            border: '1px solid var(--accent, #00f0ff)',
+            background: '#1a1a2f',
+            border: '1px solid #00f0ff',
             borderRadius: '8px',
             padding: '15px',
             maxWidth: '400px',
@@ -768,7 +637,7 @@ class ElitePortfolio {
             transition: 'transform 0.3s ease',
             fontFamily: 'JetBrains Mono, monospace',
             fontSize: '0.9rem',
-            color: 'var(--text-primary, #e0e0e0)'
+            color: '#e0e0e0'
         });
         
         document.body.appendChild(notification);
@@ -787,24 +656,16 @@ class ElitePortfolio {
         }, duration);
     }
 
-    closeAllModals() {
-        document.querySelectorAll('.cyber-notification').forEach(modal => {
-            modal.style.transform = 'translateX(400px)';
-            setTimeout(() => modal.remove(), 300);
-        });
-    }
-
     // ===== PERFORMANCE MONITOR =====
     setupPerformanceMonitor() {
         let frameCount = 0;
         let lastTime = performance.now();
-        let fps = 60;
         
         const measureFPS = (currentTime) => {
             frameCount++;
             
             if (currentTime - lastTime >= 1000) {
-                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
                 
                 if (fps < 45) {
                     console.warn(`Low FPS: ${fps}. Consider reducing animations.`);
@@ -840,18 +701,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== PAGE VISIBILITY HANDLING =====
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        // Пауза тяжелых анимаций при скрытии вкладки
         console.log('Page hidden - optimizing performance');
-    } else {
-        console.log('Page visible - resuming normal operations');
     }
-});
-
-// ===== OFFLINE SUPPORT =====
-window.addEventListener('online', () => {
-    elitePortfolio?.showCyberNotification('Connection restored', 2000);
-});
-
-window.addEventListener('offline', () => {
-    elitePortfolio?.showCyberNotification('Connection lost - working offline', 3000);
 });
