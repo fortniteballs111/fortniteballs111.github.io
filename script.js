@@ -1,3 +1,12 @@
+// ===== GLOBAL ERROR HANDLER =====
+window.addEventListener('error', function(e) {
+    console.error('Global error caught:', e.error);
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+    console.error('Unhandled promise rejection:', e.reason);
+    e.preventDefault();
+});
 // ===== ELITE PORTFOLIO INITIALIZATION =====
 class ElitePortfolio {
     constructor() {
@@ -749,4 +758,5 @@ window.addEventListener('load', () => {
     // Можно добавить отложенную загрузку дополнительных ресурсов
     console.log('Page fully loaded');
 });
+
 
